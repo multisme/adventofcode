@@ -46,6 +46,18 @@ fn parse_path(path_str: &str) -> String {
     path_str.split_whitespace().collect::<Vec<&str>>().concat()
 }
 
+fn add_update_list(
+    previous: Position,
+    next: Position,
+    character: char,
+    to_update: &mut Vec<(Position, char)>,
+) {
+    if !to_update.contains(&(next, character)) {
+        to_update.push((next, character));
+        to_update.push((previous, '.'));
+    }
+}
+
 fn move_robot(
     direction: (i32, i32),
     items: &[(Position, char)],
@@ -56,14 +68,9 @@ fn move_robot(
         .iter()
         .map(|(p, c)| {
             let n = p.p_move(direction);
-            let res = grid.get(&n);
-           // println!("new {:?}, {:?} {:?} {:?}", p, c, n, res);
-            match res {
+            match grid.get(&n) {
                 Some('.') => {
-                    if !to_update.contains(&(n, *c)) {
-                        to_update.push((n, *c));
-                        to_update.push((*p, '.'));
-                    }
+                    add_update_list(*p, n, *c, to_update);
                     true
                 }
                 Some('[') => match direction {
@@ -71,10 +78,7 @@ fn move_robot(
                         let r = n.p_move((1, 0));
                         match move_robot(direction, &[(n, '['), (r, ']')], grid, to_update)[..] {
                             [true, true] => {
-                                if !to_update.contains(&(n, *c)) {
-                                    to_update.push((n, *c));
-                                    to_update.push((*p, '.'));
-                                }
+                                add_update_list(*p, n, *c, to_update);
                                 true
                             }
                             _ => false,
@@ -82,10 +86,7 @@ fn move_robot(
                     }
                     _ => match move_robot(direction, &[(n, '[')], grid, to_update)[..] {
                         [true] => {
-                            if !to_update.contains(&(n, *c)) {
-                                to_update.push((n, *c));
-                                to_update.push((*p, '.'));
-                            }
+                            add_update_list(*p, n, *c, to_update);
                             true
                         }
                         _ => false,
@@ -96,10 +97,7 @@ fn move_robot(
                         let l = n.p_move((-1, 0));
                         match move_robot(direction, &[(n, ']'), (l, '[')], grid, to_update)[..] {
                             [true, true] => {
-                                if !to_update.contains(&(n, *c)) {
-                                    to_update.push((n, *c));
-                                    to_update.push((*p, '.'));
-                                }
+                                add_update_list(*p, n, *c, to_update);
                                 true
                             }
                             _ => false,
@@ -107,10 +105,7 @@ fn move_robot(
                     }
                     _ => match move_robot(direction, &[(n, ']')], grid, to_update)[..] {
                         [true] => {
-                            if !to_update.contains(&(n, *c)) {
-                                to_update.push((n, *c));
-                                to_update.push((*p, '.'));
-                            }
+                            add_update_list(*p, n, *c, to_update);
                             true
                         }
                         _ => false,
@@ -158,7 +153,7 @@ fn main() {
             to_update.iter().for_each(|(k, v)| {
                 grid.insert(*k, *v);
             });
-         //   print_grid(width, height, grid.clone());
+            //   print_grid(width, height, grid.clone());
         }
     }
     let res: i32 = grid
