@@ -1,4 +1,4 @@
-use std::collections::{VecDeque};
+use std::collections::VecDeque;
 
 #[derive(Clone, Copy, Debug)]
 struct Position {
@@ -41,17 +41,23 @@ impl Position {
 fn parse_grid(map_str: &str) -> (usize, usize, Position, Position, Vec<Vec<Score>>) {
     let mut grid = Vec::new();
     let (mut height, mut width) = (0, 0);
-    let (mut start, mut end) = (Position{x: 0, y: 0}, Position{x: 0, y: 0});
+    let (mut start, mut end) = (Position { x: 0, y: 0 }, Position { x: 0, y: 0 });
     map_str.lines().enumerate().for_each(|(y, line)| {
         let mut row: Vec<Score> = Vec::new();
         line.chars().enumerate().for_each(|(x, c)| {
             row.push(Score { char: c, points: 0 });
             width = x;
             if c == 'S' {
-                start = Position { x: x as i32, y: y as i32};
+                start = Position {
+                    x: x as i32,
+                    y: y as i32,
+                };
             }
             if c == 'E' {
-                end = Position { x: x as i32, y: y as i32};
+                end = Position {
+                    x: x as i32,
+                    y: y as i32,
+                };
             }
         });
         grid.push(row);
@@ -65,11 +71,11 @@ fn main() {
     let (_width, _height, start, end, mut grid) = parse_grid(data.next().unwrap());
     let mut deque: VecDeque<(Position, Direction, i32)> = VecDeque::new();
     deque.push_back((start, Direction::Horizontal, 1));
-    while let Some((pos, direction, points)) =  deque.pop_back(){
+    while let Some((pos, direction, points)) = deque.pop_back() {
         match &grid[pos.y as usize][pos.x as usize] {
             score @ Score { char: '.', .. } | score @ Score { char: 'S', .. } => {
                 if score.points == 0 || score.points > points {
-                    grid[pos.y as usize][pos.x as usize].points = points; 
+                    grid[pos.y as usize][pos.x as usize].points = points;
                     let (v_inc, h_inc) = match direction {
                         Direction::Vertical => (1, 1001),
                         Direction::Horizontal => (1001, 1),
@@ -82,7 +88,7 @@ fn main() {
             }
             score @ Score { char: 'E', .. } => {
                 if score.points == 0 || score.points > points {
-                    grid[pos.y as usize][pos.x as usize].points = points; 
+                    grid[pos.y as usize][pos.x as usize].points = points;
                 }
             }
             _ => (),
