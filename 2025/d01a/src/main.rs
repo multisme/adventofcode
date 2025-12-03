@@ -35,11 +35,7 @@ fn dialing(input: Vec<Rotation>) -> usize {
             Side::Left => dial -= x.distance,
             Side::Right => dial += x.distance,
         }
-        if dial > 99 {
-            dial -= 100
-        } else if dial < 0 {
-            dial += 100
-        }
+        dial %= 100;
         if dial == 0 {
             res += 1
         };
